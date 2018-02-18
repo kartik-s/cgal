@@ -421,7 +421,38 @@ bool is_hexahedron( typename boost::graph_traits<FaceGraph>::halfedge_descriptor
   return true;
 }
 
+/**
+ * \ingroup PkgBGLHelperFct
+ * \brief Calculates the genus of a closed triangular mesh.
+ *
+ * @tparam TriangleMesh a model of FaceListGraph, HalfedgeListGraph, and
+ * VertexListGraph.
+ * 
+ * @param m the mesh.
+ *
+ * \returns the genus of `m`.
+ **/
+template <class TriangleMesh>
+int genus(const TriangleMesh &m)
+{
+  CGAL_precondition(is_triangle_mesh(m));
+  CGAL_precondition(is_closed(m));
 
+  typedef typename boost::graph_traits<TriangleMesh> MeshTraits;
+  typedef typename MeshTraits::halfedge_iterator halfedge_iterator;
+  typedef typename MeshTraits::face_iterator face_iterator;
+  typedef typename MeshTraits::vertex_iterator vertex_iterator;
+  typedef typename std::iterator_traits<halfedge_iterator> HalfedgeIteratorTraits;
+  typedef typename std::iterator_traits<face_iterator> FaceIteratorTraits;
+  typedef typename std::iterator_traits<vertex_iterator> VertexIteratorTraits;
+
+  typename HalfedgeIteratorTraits::difference_type he = iterator_distance(halfedges(m).first, halfedges(m).second);
+  typename FaceIteratorTraits::difference_type f = iterator_distance(faces(m).first, faces(m).second);
+  typename VertexIteratorTraits::difference_type v = iterator_distance(vertices(m).first, vertices(m).second);
+  long chi = static_cast<long>(v - he/2 + f);
+
+  return static_cast<int>(1 - chi/2);
+}
 
 /** 
  * \ingroup PkgBGLHelperFct
